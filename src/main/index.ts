@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import ndiManager from './ndi-manager'
 
 function createWindow(): void {
   // Create the browser window.
@@ -26,6 +27,8 @@ function createWindow(): void {
     return { action: 'deny' }
   })
 
+  ndiManager.registerWindow(mainWindow)
+
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
@@ -49,9 +52,10 @@ app.whenReady().then(() => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // IPC test
-  ipcMain.on('ping', () => console.log('pong'))
+  ipcMain.handle('ndi:list-sources', () => ndiManager.listSources())
+  ipcMain.handle('ndi:start', (_event, sourceName: string) => ndiManager.startStream(sourceName))
 
+  ndiManager.start()
   createWindow()
 
   app.on('activate', function () {
@@ -70,5 +74,6 @@ app.on('window-all-closed', () => {
   }
 })
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+app.on('before-quit', () => {
+  ndiManager.stop()
+})
