@@ -41,7 +41,5 @@ jobs:
         with:
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: |
-            dist/*.dmg
-            dist/*.exe
-            dist/*.AppImage
+          files:  dist/*.${{ matrix.os == 'ubuntu-latest' && 'AppImage' || matrix.os == 'windows-latest' && 'exe' || 'dmg' }}
+           
