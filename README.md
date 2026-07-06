@@ -41,6 +41,10 @@ The build scripts handle this automatically:
 
 See [electron-builder's cross-build documentation](https://www.electron.build/multi-platform-build) for setting up a cross-build environment.
 
+### Why `asarUnpack` is needed
+
+`@grandi/*` ships native Node addons, and those binaries must live on the real filesystem at runtime. Electron can load JavaScript from `app.asar`, but native `.node` modules and the copied `resources/**` payload cannot be executed or accessed reliably from inside the archive. `asarUnpack` ensures electron-builder places them under `app.asar.unpacked`, where the UtilityProcess and Node's native addon loader can actually read them.
+
 ### Optional dependency reference
 
 | Target         | Package                |
